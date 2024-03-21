@@ -1,9 +1,12 @@
 <div class="px-4 sm:px-6 lg:px-8">
+    @if(session()->has('message'))
+    <x-banner />
+    @endif
     <div class="mt-8 flow-root">
       <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="w-full flex justify-between p-2">
             <div>
-                <input type="text" class="p-2 m-2 rounded" placeholder="Search">
+                <input wire:model.live='search' type="search" class="p-2 m-2 rounded" placeholder="Search">
             </div>
             <div>
                 <x-button wire:click="showCreateModal" class="bg-green-600">Create</x-button>
@@ -21,8 +24,8 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 bg-white">
-                @if(!empty($listings))
-                @foreach($listings as $listing)
+
+                @forelse($listings as $listing)
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap">
                         {{ $listing->name }}
@@ -38,13 +41,23 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <x-button wire:click='showEditModal({{ $listing->id}})' class="bg-green-500">Edit</x-button>
-                        <x-button class="bg-red-500">Delete</x-button>
+                        <x-button wire:click='deleteListing({{ $listing->id }})' class="bg-red-500">Delete</x-button>
                     </td>
                 </tr>
-                @endforeach
-                @endif
+                @empty
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        No Results
+                    </td>
+                </tr>
+
+                @endforelse
+
             </tbody>
           </table>
+          <div class="m-2 p-2">
+            {{ $listings->links() }}
+        </div>
         </div>
       </div>
     </div>
@@ -150,7 +163,7 @@
        </x-slot>
        <x-slot name="footer">
             @if($editMode)
-                <x-button>Update</x-jet-button>
+                <x-button wire:click='listingUpdate'>Update</x-jet-button>
             @else
                 <x-button wire:click='createListing'>Create</x-jet-button>
             @endif
